@@ -44,4 +44,8 @@ public class LoginPage {
         // ✅ Step 5: Wait for home page
         page.waitForURL("**/home");
     }
+
+    public boolean isHomePageVisible() {
+        return page.locator("oh-homepage").count() > 0;
+    }
 }
