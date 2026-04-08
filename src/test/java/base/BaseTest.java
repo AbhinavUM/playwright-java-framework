@@ -5,6 +5,7 @@ import factory.PlaywrightFactory;
 import listeners.TestListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(TestListener.class)
@@ -18,7 +19,8 @@ public class BaseTest {
     }
 
     @AfterEach
-    void tearDown() {
-        PlaywrightFactory.tearDown();
+    void tearDown(TestInfo testInfo) {
+        String testName = testInfo.getDisplayName();
+        PlaywrightFactory.tearDown(testName);
     }
 }

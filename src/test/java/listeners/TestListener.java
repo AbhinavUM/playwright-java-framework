@@ -3,8 +3,10 @@ package listeners;
 import base.BaseTest;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestWatcher;
+import utils.AllureUtil;
 import utils.ScreenshotUtil;
 
+import java.nio.file.Path;
 import java.util.Optional;
 
 public class TestListener implements TestWatcher {
@@ -17,13 +19,23 @@ public class TestListener implements TestWatcher {
             BaseTest testInstance = (BaseTest) context.getRequiredTestInstance();
 
             if (testInstance.page != null && !testInstance.page.isClosed()) {
-                ScreenshotUtil.takeScreenshot(
+
+                // 📸 Screenshot
+                ScreenshotUtil.attachScreenshot(
                         testInstance.page,
-                        context.getDisplayName().replaceAll("[^a-zA-Z0-9]", "_")
+                        context.getDisplayName()
                 );
+
+                // 🎥 Attach Video
+                String videoPath = testInstance.page.video().path().toString();
+                AllureUtil.attachFile("Video", Path.of(videoPath));
+
+                // 🔍 Attach Trace
+                AllureUtil.attachFile("Trace", Path.of("traces/trace.zip"));
             }
+
         } catch (Exception e) {
-            System.out.println("⚠️ Screenshot failed: " + e.getMessage());
+            System.out.println("⚠️ Attachment failed: " + e.getMessage());
         }
     }
 
