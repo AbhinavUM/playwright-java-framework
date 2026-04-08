@@ -70,6 +70,20 @@
             <version>1.10.0</version>
         </dependency>
 
+        <!-- Allure Cucumber -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-cucumber7-jvm</artifactId>
+            <version>2.24.0</version>
+        </dependency>
+
+        <!-- Allure JUnit (optional but good) -->
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>2.24.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>
