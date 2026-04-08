@@ -21,6 +21,6 @@ public class LoginTest extends BaseTest {
         );
 
         // Assertion
-        assertTrue(page.locator("oh-homepage").isVisible());
+        assertTrue(page.locator("oh-homehvpage").isVisible());
     }
 }
