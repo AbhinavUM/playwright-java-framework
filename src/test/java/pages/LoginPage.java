@@ -1,6 +1,10 @@
 package pages;
 
 import com.microsoft.playwright.Page;
+import com.microsoft.playwright.assertions.PlaywrightAssertions;
+import utils.VisualUtil;
+
+import java.util.List;
 
 public class LoginPage {
 
@@ -16,36 +20,78 @@ public class LoginPage {
 
     public void openLoginPage(String baseUrl) {
         page.navigate(baseUrl + "signin");
+        page.waitForLoadState();
     }
 
-    // 🔥 SMART LOGIN
-    public void smartLogin(String baseUrl, String username, String password) {
+    // 🔥 Login method
+    public void login(String baseUrl, String username, String password) {
 
-        // ✅ Step 1: Check if already logged in
-        if (page.locator("oh-homepage").isVisible()) {
+        if (isHomePageVisible()) {
             System.out.println("Already logged in — skipping login");
             return;
         }
 
-        // ✅ Step 2: Open login page
         openLoginPage(baseUrl);
 
-        page.locator(emailInput).waitFor();
-
-        // ✅ Step 3: Fill credentials
         page.locator(emailInput).fill(username);
         page.locator(passwordInput).fill(password);
 
         page.locator(passwordInput).press("Tab");
-
-        // ✅ Step 4: Click login
         page.locator(signInBtn).click();
 
-        // ✅ Step 5: Wait for home page
         page.waitForURL("**/home");
     }
 
     public boolean isHomePageVisible() {
-        return page.locator("oh-homepage").count() > 0;
+        return page.locator("oh-homepage").isVisible();
+    }
+
+    // 🔥 UI + Visual Validation (STABLE VERSION)
+    public void verifyLoginPageUI() {
+
+        // 🔥 Disable animations
+        page.addStyleTag(new Page.AddStyleTagOptions()
+                .setContent("* { transition: none !important; animation: none !important; }"));
+
+        // ✅ Wait for full page readiness
+        page.waitForLoadState();
+
+        // 🔥 Wait for critical UI (not just DOM)
+        page.waitForSelector("text=Welcome back to OnceHub");
+        page.waitForSelector("#email");
+        page.waitForSelector("#password");
+        page.waitForSelector("#signIn");
+
+        // 🔥 Wait for Google buttons (important async UI)
+        page.waitForSelector("text=Sign in with Google");
+
+        // 🔥 Wait for captcha badge to load (and then ignore it)
+        page.waitForSelector(".grecaptcha-badge");
+
+        // Small stabilization
+        page.waitForTimeout(400);
+
+        // ✅ Functional checks
+        PlaywrightAssertions.assertThat(page.getByText("Welcome back to OnceHub")).isVisible();
+        PlaywrightAssertions.assertThat(page.getByText("Sign into your account")).isVisible();
+
+        PlaywrightAssertions.assertThat(page.locator("#email")).isVisible();
+        PlaywrightAssertions.assertThat(page.locator("#password")).isVisible();
+        PlaywrightAssertions.assertThat(page.locator("#signIn")).isVisible();
+
+        // 🔥 Use correct container (NOT form)
+        var loginContainer = page.locator(".form-box").first();
+
+        loginContainer.scrollIntoViewIfNeeded();
+
+        // 🔥 Visual validation (correct + stable)
+        try {
+            VisualUtil.compareScreenshot(
+                    loginContainer,
+                    "login-page.png"
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("❌ Visual comparison failed", e);
+        }
     }
 }

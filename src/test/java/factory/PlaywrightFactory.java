@@ -9,10 +9,10 @@ import java.util.Arrays;
 
 public class PlaywrightFactory {
 
-    private static ThreadLocal<Playwright> playwright = new ThreadLocal<>();
-    private static ThreadLocal<Browser> browser = new ThreadLocal<>();
-    private static ThreadLocal<BrowserContext> context = new ThreadLocal<>();
-    private static ThreadLocal<Page> page = new ThreadLocal<>();
+    private static final ThreadLocal<Playwright> playwright = new ThreadLocal<>();
+    private static final ThreadLocal<Browser> browser = new ThreadLocal<>();
+    private static final ThreadLocal<BrowserContext> context = new ThreadLocal<>();
+    private static final ThreadLocal<Page> page = new ThreadLocal<>();
 
     public static Page initBrowser() {
 
@@ -22,19 +22,22 @@ public class PlaywrightFactory {
                 playwright.get().chromium().launch(
                         new BrowserType.LaunchOptions()
                                 .setHeadless(false)
-                                .setArgs(Arrays.asList(new String[]{"--start-maximized"}))
+                                // 🔥 REAL fullscreen window (not just viewport)
+                                .setArgs(Arrays.asList("--start-maximized"))
                 )
         );
 
         context.set(
                 browser.get().newContext(
                         new Browser.NewContextOptions()
+                                // 🔥 CRITICAL: disable fixed viewport → use window size
                                 .setViewportSize(null)
-                                .setRecordVideoDir(Paths.get("videos/")) // 🎥 video
+                                // 🎥 Record video
+                                .setRecordVideoDir(Paths.get("videos/"))
                 )
         );
 
-        // 🔍 Start tracing
+        // 🔍 Start tracing (screenshots + DOM snapshots)
         context.get().tracing().start(
                 new Tracing.StartOptions()
                         .setScreenshots(true)
@@ -43,6 +46,11 @@ public class PlaywrightFactory {
         );
 
         page.set(context.get().newPage());
+
+        // 🔥 Stabilize rendering early (reduces visual flakiness)
+        page.get().addInitScript(
+                "(() => { document.body && (document.body.style.zoom = '1'); })();"
+        );
 
         return page.get();
     }
@@ -54,11 +62,9 @@ public class PlaywrightFactory {
     public static void tearDown(String testName) {
 
         try {
-            // Ensure folder exists
             Files.createDirectories(Paths.get("traces"));
 
             String safeTestName = testName.replaceAll("[^a-zA-Z0-9]", "_");
-
             Path tracePath = Paths.get("traces/" + safeTestName + ".zip");
 
             context.get().tracing().stop(
@@ -72,9 +78,11 @@ public class PlaywrightFactory {
         }
 
         try {
-            context.get().close();
-            browser.get().close();
-            playwright.get().close();
+            // Close in correct order
+            if (context.get() != null) context.get().close();
+            if (browser.get() != null) browser.get().close();
+            if (playwright.get() != null) playwright.get().close();
+
         } catch (Exception e) {
             System.out.println("⚠️ Browser close failed: " + e.getMessage());
         }

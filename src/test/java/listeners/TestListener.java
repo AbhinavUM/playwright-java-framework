@@ -6,14 +6,16 @@ import org.junit.jupiter.api.extension.TestWatcher;
 import utils.AllureUtil;
 import utils.ScreenshotUtil;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 public class TestListener implements TestWatcher {
 
     @Override
     public void testFailed(ExtensionContext context, Throwable cause) {
-        System.out.println("❌ Test Failed: " + context.getDisplayName());
+        String testName = context.getDisplayName().replaceAll("[^a-zA-Z0-9]", "_");
+
+        System.out.println("❌ Test Failed: " + testName);
 
         try {
             BaseTest testInstance = (BaseTest) context.getRequiredTestInstance();
@@ -23,15 +25,32 @@ public class TestListener implements TestWatcher {
                 // 📸 Screenshot
                 ScreenshotUtil.attachScreenshot(
                         testInstance.page,
-                        context.getDisplayName()
+                        testName
                 );
 
-                // 🎥 Attach Video
-                String videoPath = testInstance.page.video().path().toString();
-                AllureUtil.attachFile("Video", Path.of(videoPath));
+                // 🎥 Video
+                try {
+                    if (testInstance.page.video() != null) {
+                        Path videoPath = testInstance.page.video().path();
 
-                // 🔍 Attach Trace
-                AllureUtil.attachFile("Trace", Path.of("traces/trace.zip"));
+                        if (videoPath != null && Files.exists(videoPath)) {
+                            AllureUtil.attachFile("Video", videoPath);
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("⚠️ Video attachment failed: " + e.getMessage());
+                }
+
+                // 🔍 Trace
+                try {
+                    Path tracePath = Path.of("traces/" + testName + ".zip");
+
+                    if (Files.exists(tracePath)) {
+                        AllureUtil.attachFile("Trace", tracePath);
+                    }
+                } catch (Exception e) {
+                    System.out.println("⚠️ Trace attachment failed: " + e.getMessage());
+                }
             }
 
         } catch (Exception e) {
