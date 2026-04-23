@@ -1,4 +1,4 @@
-package pages;
+package pages.Signup_Login;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
@@ -46,7 +46,6 @@ public class LoginPage {
         return page.locator("oh-homepage").isVisible();
     }
 
-    // 🔥 UI + Visual Validation (STABLE VERSION)
     public void verifyLoginPageUI() {
 
         // 🔥 Disable animations
