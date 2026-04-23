@@ -4,8 +4,8 @@ import base.BaseTest;
 import com.microsoft.playwright.Page;
 import io.qameta.allure.Allure;
 import org.junit.jupiter.api.Test;
-import pages.LoginPage;
 import pages.Homepage.Homepage;
+import pages.Signup_Login.LoginPage;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
