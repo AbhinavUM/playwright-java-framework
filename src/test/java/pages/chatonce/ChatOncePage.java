@@ -1,12 +1,12 @@
-package pages.Chatonce;
+package pages.chatonce;
 
 import com.microsoft.playwright.Page;
 
-public class Chatoncepage {
+public class ChatOncePage {
 
     private Page page;
 
-    public Chatoncepage(Page page) {
+    public ChatOncePage(Page page) {
         this.page = page;
     }
 

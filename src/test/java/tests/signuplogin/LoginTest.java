@@ -1,11 +1,11 @@
-package tests.Singup_Login;
+package tests.signuplogin;
 
 import base.BaseTest;
 import com.microsoft.playwright.Page;
 import io.qameta.allure.Allure;
 import org.junit.jupiter.api.Test;
-import pages.Homepage.Homepage;
-import pages.Signup_Login.LoginPage;
+import pages.homepage.HomePage;
+import pages.signuplogin.LoginPage;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -17,7 +17,7 @@ public class LoginTest extends BaseTest {
     void user_can_login_with_valid_credentials_and_land_on_homepage() {
 
         LoginPage loginPage = new LoginPage(page);
-        Homepage homepage = new Homepage(page);
+        HomePage homepage = new HomePage(page);
 
         performLoginFlow(loginPage);
 
@@ -60,7 +60,7 @@ public class LoginTest extends BaseTest {
     // 🔥 HOMEPAGE VALIDATION
     // =========================
 
-    private void verifyHomepageUI(Homepage homepage) {
+    private void verifyHomepageUI(HomePage homepage) {
 
         Allure.step("Verify top navigation (functional)",
                 homepage::verifyTopNavigation
