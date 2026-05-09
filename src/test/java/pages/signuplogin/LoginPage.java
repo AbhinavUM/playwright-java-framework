@@ -1,10 +1,8 @@
-package pages.Signup_Login;
+package pages.signuplogin;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import utils.VisualUtil;
-
-import java.util.List;
 
 public class LoginPage {
 
